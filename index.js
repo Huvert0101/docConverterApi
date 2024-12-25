@@ -27,19 +27,14 @@ app.get("/convert", async (req, res) => {
     // Guardar el archivo en el sistema local
     fs.writeFileSync(filePath, response.data);
     console.log("Archivo descargado desde la URL...");
-
-     try {
-    // Intenta forzar la instalación de Chromium, si no está presente
-    await puppeteer.install();
-    console.log('Chromium instalado correctamente');
-  } catch (error) {
-    console.error('No se pudo instalar Chromium automáticamente', error);
-  }
+    console.log("Ruta del binario de Chromium:", puppeteer.executablePath());
 
   const browser = await puppeteer.launch({
-    headless: true, 
-    executablePath: puppeteer.executablePath(), // Usa el binario de Chromium descargado
-  });
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"], // Recomendado en entornos de producción
+      executablePath: process.env.CHROME_BIN || puppeteer.executablePath(), // Forzar uso de Chromium instalado
+    });
+
     // Paso 2: Usar Puppeteer para cargar el archivo a Convertio
     const page = await browser.newPage();
 
